@@ -4,9 +4,9 @@ import pickle
 
 #root_path = '/home/anguyen/workspace/paper_src/2018.icra.event.source'  # not .source/dataset --> wrong folder
 cwd = os.getcwd()
-print 'current dir: ', cwd
+print('current dir: ', cwd)
 root_path = os.path.abspath(os.path.join(cwd, os.pardir))  # get parent path
-print 'root path: ', root_path  
+print('root path: ', root_path)  
 sys.path.insert(0, root_path)
 
 
@@ -16,7 +16,7 @@ from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
-import os, cPickle
+import os, pickle
 
 #net_id = 'vgg19_batchsize16_dimhidden256'
 #net_id = 'resnet_batchsize16_dimhidden256'
@@ -44,7 +44,7 @@ net_id = 'BasicLSTM_inception_tensorflow_from_saliency_batchsize16_dimhidden512_
 
 class COCOScorer(object):
     def __init__(self):
-        print 'init COCO-EVAL scorer'
+        print('init COCO-EVAL scorer')
             
     def score(self, GT, RES, IDs, result_file):
         self.eval = {}
@@ -55,7 +55,7 @@ class COCOScorer(object):
 #            print ID
             gts[ID] = GT[ID]
             res[ID] = RES[ID]
-        print 'tokenization...'
+        print('tokenization...')
         tokenizer = PTBTokenizer()
         gts  = tokenizer.tokenize(gts)
         res = tokenizer.tokenize(res)
@@ -63,7 +63,7 @@ class COCOScorer(object):
         # =================================================
         # Set up scorers
         # =================================================
-        print 'setting up scorers...'
+        print('setting up scorers...')
         scorers = [
             (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
             (Meteor(),"METEOR"),
@@ -72,7 +72,7 @@ class COCOScorer(object):
         ]
 
 #         result_file = '/home/anguyen/workspace/paper_src/2018.icra.v2c.source/output/' + net_id + '/prediction/score_result.txt'
-        print 'RESULT FILE: ', result_file
+        print('RESULT FILE: ', result_file)
         
         fwriter = open(result_file, 'w')
         
@@ -81,18 +81,18 @@ class COCOScorer(object):
         # =================================================
         eval = {}
         for scorer, method in scorers:
-            print 'computing %s score...'%(scorer.method())
+            print('computing %s score...'%(scorer.method()))
             score, scores = scorer.compute_score(gts, res)
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):
                     self.setEval(sc, m)
                     self.setImgToEvalImgs(scs, IDs, m)
-                    print "%s: %0.3f"%(m, sc)
+                    print("%s: %0.3f"%(m, sc))
                     fwriter.write("%s %0.3f\n"%(m, sc))
             else:
                 self.setEval(score, method)
                 self.setImgToEvalImgs(scores, IDs, method)
-                print "%s: %0.3f"%(method, score)
+                print("%s: %0.3f"%(method, score))
                 fwriter.write("%s %0.3f\n"%(method, score))
                 
         #for metric, score in self.eval.items():
@@ -113,7 +113,7 @@ class COCOScorer(object):
 def load_pkl(path):    
     f = open(path, 'rb')
     try:
-        rval = cPickle.load(f)
+        rval = pickle.load(f)
     finally:
         f.close()
         
@@ -129,7 +129,7 @@ def score(ref, sample):
     ]
     final_scores = {}
     for scorer, method in scorers:
-        print 'computing %s score with COCO-EVAL...'%(scorer.method())
+        print('computing %s score with COCO-EVAL...'%(scorer.method()))
         score, scores = scorer.compute_score(ref, sample)
         if type(score) == list:
             for m, s in zip(method, score):
@@ -161,20 +161,20 @@ def test_cocoscorer():
     '''
     gts = {
         '184321':[
-        {u'image_id': '184321', u'cap_id': 0, u'caption': u'A train traveling down tracks next to lights.',
+        {'image_id': '184321', 'cap_id': 0, 'caption': 'A train traveling down tracks next to lights.',
          'tokenized': 'a train traveling down tracks next to lights'},
-        {u'image_id': '184321', u'cap_id': 1, u'caption': u'A train coming down the tracks arriving at a station.',
+        {'image_id': '184321', 'cap_id': 1, 'caption': 'A train coming down the tracks arriving at a station.',
          'tokenized': 'a train coming down the tracks arriving at a station'}],
         '81922': [
-        {u'image_id': '81922', u'cap_id': 0, u'caption': u'A large jetliner flying over a traffic filled street.',
+        {'image_id': '81922', 'cap_id': 0, 'caption': 'A large jetliner flying over a traffic filled street.',
          'tokenized': 'a large jetliner flying over a traffic filled street'},
-        {u'image_id': '81922', u'cap_id': 1, u'caption': u'The plane is flying over top of the cars',
+        {'image_id': '81922', 'cap_id': 1, 'caption': 'The plane is flying over top of the cars',
          'tokenized': 'the plan is flying over top of the cars'},]
         }
         
     samples = {
-        '184321': [{u'image_id': '184321', u'caption': u'train traveling down a track in front of a road'}],
-        '81922': [{u'image_id': '81922', u'caption': u'plane is flying through the sky'}],
+        '184321': [{'image_id': '184321', 'caption': 'train traveling down a track in front of a road'}],
+        '81922': [{'image_id': '81922', 'caption': 'plane is flying through the sky'}],
         }
     IDs = ['184321', '81922']
     scorer = COCOScorer()
@@ -212,7 +212,7 @@ def test_v2c():
     for key in grt_dic:
         id_list.append(key)
     
-    print 'id list: ', id_list
+    print('id list: ', id_list)
     
     scorer = COCOScorer()
     scorer.score(grt_dic, prd_dic, id_list, result_file)
@@ -220,4 +220,5 @@ def test_v2c():
 if __name__ == '__main__':
     #test_cocoscorer()
     test_v2c()
-    print 'ALL DONE!'
+    print('ALL DONE!')
+

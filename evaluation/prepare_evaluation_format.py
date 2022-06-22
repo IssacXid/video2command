@@ -78,10 +78,10 @@ for i in range(0, len(all_lines)-4, 4):
     gt_line = all_lines[i+2]
     pd_line = all_lines[i+3]
     
-    print 'seperated line: ', sp_line
-    print 'id line: ', id_line
-    print 'ground truth line: ', gt_line
-    print 'prediction line: ', pd_line
+    print('seperated line: ', sp_line)
+    print('id line: ', id_line)
+    print('ground truth line: ', gt_line)
+    print('prediction line: ', pd_line)
     
     # build current grt item
     cur_grt_dic = {}
@@ -122,4 +122,5 @@ with open(out_grt_file, 'wb') as handle:
 
 
 
-print 'ALL DONE!'
+print('ALL DONE!')
+

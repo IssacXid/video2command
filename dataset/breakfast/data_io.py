@@ -6,22 +6,22 @@ import numpy as np
 
 random.seed(0)
 
-in_fid_folder = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/subtitle/l30_srt'
+in_fid_folder = '/content/data'
 
 #in_feature_folder = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/video/vgg19_caffe_feature'
 #in_feature_folder = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/video/resnet50_keras_feature'
 
-#feature_name = 'resnet50_keras_feature_no_sub_mean'
+feature_name = 'resnet50_keras_feature_no_sub_mean'
 #feature_name = 'vgg16_keras_feature_no_sub_mean'
 #feature_name = 'inception_keras_feature_no_sub_mean'
-feature_name = 'inception_tensorflow_from_saliency'
+#feature_name = 'inception_tensorflow_from_saliency'
 
 
 #in_feature_folder = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/video/resnet50_keras_feature_no_sub_mean'
-in_feature_folder = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/video/' + feature_name
+in_feature_folder = '/content/data/' + feature_name
     
-in_train_txt_file = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/train_test_split/train.txt'
-in_test_text_file = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/train_test_split/test.txt'
+in_train_txt_file = '/content/video2command/dataset/breakfast/train.txt'
+in_test_text_file = '/content/video2command/dataset/breakfast/test.txt'
 
     
 def get_caption(video_id):
@@ -64,23 +64,23 @@ def save_data(list_data, out_file):
     list_video_id = []
     list_caption = []
     for l in list_data:
-        print '-------------------------'
+        print('-------------------------')
         l = l[0:len(l)-4]  # remove ".npy"
         caption_cmd = get_caption(l)
-        print 'output caption: ', caption_cmd
+        print('output caption: ', caption_cmd)
         list_caption.append(caption_cmd)
         
         # build full path -- to load later 
         l = in_feature_folder + '/' + l + '.npy'
         list_video_id.append(l)
-        print 'input video id: ', l
+        print('input video id: ', l)
         
         
         #break
     #print list_video_id_train
         
     df = pd.DataFrame({'video_path':list_video_id, 'caption':list_caption})
-    print df
+    print(df)
     
     # save to pickle
     df.to_pickle(out_file)
@@ -104,13 +104,13 @@ if __name__ == '__main__':
     # read list train
     list_train = list(open(in_train_txt_file, 'r'))
     list_train = [l.strip() + '.npy' for l in list_train]
-    print 'LIST TRAIN[0]: ', list_train[0]  #P45_webcam01_P45_juice_22.npy
+    print('LIST TRAIN[0]: ', list_train[0])  #P45_webcam01_P45_juice_22.npy
      
     list_test = list(open(in_test_text_file, 'r'))
     list_test = [l.strip() + '.npy' for l in list_test]
-    print 'LIST TEST[0]: ', list_test[0]
+    print('LIST TEST[0]: ', list_test[0])
      
-    out_folder = '/home/anguyen/workspace/dataset/Breakfast/v2c_dataset/train_test_split'
+    out_folder = '/content/output'
     if not os.path.exists(out_folder):
         os.makedirs(out_folder)
          
@@ -124,4 +124,5 @@ if __name__ == '__main__':
     save_data(list_test, test_file)
 #     
     
-    print 'all done!'
+    print('all done!')
+

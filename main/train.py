@@ -8,9 +8,9 @@ import sys
 import matplotlib.pyplot as plt
 
 cwd = os.getcwd()
-print 'current dir: ', cwd
+print('current dir: ', cwd)
 root_path = os.path.abspath(os.path.join(cwd, os.pardir))  # get parent path
-print 'root path: ', root_path  
+print('root path: ', root_path)  
 sys.path.insert(0, root_path)
 
 
@@ -174,12 +174,12 @@ class V2C():
 
             embeds.append(current_embed)
 
-        print 'Build generator done!'
+        print('Build generator done!')
         return video, video_mask, generated_words, probs, embeds
     
 
 def preProBuildWordVocab(sentence_iterator, word_count_threshold=5): # borrowed this function from NeuralTalk
-    print 'preprocessing word counts and creating vocab based on word count threshold %d' % (word_count_threshold, )
+    print('preprocessing word counts and creating vocab based on word count threshold %d' % (word_count_threshold, ))
     word_counts = {}
     nsents = 0
     for sent in sentence_iterator:
@@ -188,7 +188,7 @@ def preProBuildWordVocab(sentence_iterator, word_count_threshold=5): # borrowed 
             word_counts[w] = word_counts.get(w, 0) + 1
 
     vocab = [w for w in word_counts if word_counts[w] >= word_count_threshold]
-    print 'filtered words from %d to %d' % (len(word_counts), len(vocab))
+    print('filtered words from %d to %d' % (len(word_counts), len(vocab)))
 
     ixtoword = {}
     ixtoword[0] = '.'  # period at the end of the sentence. make first dimension be end token
@@ -276,16 +276,16 @@ def train(net_id, train_file, dim_image, dim_hidden, n_frame_step, n_epochs, lea
 
         list_current_epoch_lost = []
         for start,end in zip(
-                range(0, len(current_train_data), batch_size),  
-                range(batch_size, len(current_train_data), batch_size)):
+                list(range(0, len(current_train_data), batch_size)),  
+                list(range(batch_size, len(current_train_data), batch_size))):
  
             
-            print '----------------------------------------------'
+            print('----------------------------------------------')
             current_batch = current_train_data[start:end]   
             current_videos = current_batch['video_path'].values
 
             current_feats = np.zeros((batch_size, n_frame_step, dim_image))  
-            current_feats_vals = map(lambda vid: np.load(vid), current_videos)   
+            current_feats_vals = [np.load(vid) for vid in current_videos]   
             current_video_masks = np.zeros((batch_size, n_frame_step))
 
             for ind,feat in enumerate(current_feats_vals):  
@@ -293,14 +293,14 @@ def train(net_id, train_file, dim_image, dim_hidden, n_frame_step, n_epochs, lea
                 current_video_masks[ind][:len(current_feats_vals[ind])] = 1 
             
             current_captions = current_batch['caption'].values 
-            current_caption_ind = map(lambda cap: [wordtoix[word] for word in cap.lower().split(' ') if word in wordtoix], current_captions)  
+            current_caption_ind = [[wordtoix[word] for word in cap.lower().split(' ') if word in wordtoix] for cap in current_captions]  
 
             current_caption_matrix = sequence.pad_sequences(current_caption_ind, padding='post', maxlen=n_frame_step-1) 
             current_caption_matrix = np.hstack( [current_caption_matrix, np.zeros( [len(current_caption_matrix),1]) ] ).astype(int)
 
             
             current_caption_masks = np.zeros((current_caption_matrix.shape[0], current_caption_matrix.shape[1])) 
-            nonzeros = np.array( map(lambda x: (x != 0).sum()+1, current_caption_matrix ))  
+            nonzeros = np.array( [(x != 0).sum()+1 for x in current_caption_matrix])  
             
 
             for ind, row in enumerate(current_caption_masks):
@@ -324,20 +324,20 @@ def train(net_id, train_file, dim_image, dim_hidden, n_frame_step, n_epochs, lea
 
             # append the loss
             list_current_epoch_lost.append(loss_val)
-            print 'epoch:', epoch, '-- loss:', loss_val
+            print('epoch:', epoch, '-- loss:', loss_val)
             
             #write to tensorboard
             #train_log.add_summary(summary_str, epoch)
         
         # save model
         if np.mod(epoch, 50) == 0:
-            print "Epoch ", epoch, " is done. Saving the model ..."
+            print("Epoch ", epoch, " is done. Saving the model ...")
 
             saver.save(sess, model_path, global_step=epoch)
     
         # save log loss
         current_loss = np.mean(list_current_epoch_lost)
-        print 'current epoch loss: ', current_loss
+        print('current epoch loss: ', current_loss)
         loss_history.append(current_loss)
         
         
@@ -380,8 +380,9 @@ if __name__ == '__main__':
     net_id = 'BasicLSTM_' + cnn_name + '_batchsize' + str(batch_size) + '_dimhidden' + str(dim_hidden) + '_learningrate' + str(learning_rate)
     
     
-    print 'START TRANING ...'
+    print('START TRANING ...')
     train(net_id, train_path, dim_image, dim_hidden, n_frame_step, n_epochs, learning_rate, batch_size)
-    print 'ALL DONE!'
+    print('ALL DONE!')
+
 
 
